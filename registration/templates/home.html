@@ -1,0 +1,145 @@
+{% extends 'main.html' %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .jumbotron {
+        background-color: #4e54c8;
+        padding: 80px 30px;
+        border-radius: 0;
+        margin-bottom: 0;
+        color: #fff;
+        text-align: center;
+    }
+
+    .dashboard {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .user-card {
+        background-color: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .user-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .user-info {
+        padding: 20px;
+    }
+
+    .user-info p {
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .btn-primary,
+    .btn-danger {
+        margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+    .active-user {
+        background-color: #8f94fb;
+        color: #fff;
+    }
+</style>
+
+<div class="jumbotron">
+    <h1>Welcome to Your Dashboard, {{ user.username }}!</h1>
+    <a href="{{ url_for('login') }}" class="btn btn-light">Logout</a>
+</div>
+
+<div class="container">
+    <div class="dashboard">
+        {% for row in rows %}
+            <div class="col-md-4">
+                <div class="user-card {% if row.id == user.id %} active-user {% endif %}">
+                    <div class="user-info">
+                        <p><strong>User ID:</strong> {{ row.id }}</p>
+                        <p><strong>Username:</strong> {{ row.username }}</p>
+                        <p><strong>Email:</strong> {{ row.email }}</p>
+                        <p><strong>Password:</strong> {{ row.password }}</p>
+                        {% if row.id == user.id %}
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal{{ row.id }}">Update</button>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ row.id }}">Delete</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% for row in rows %}
+    <!-- Update Modal -->
+    <div class="modal fade" id="updateModal{{ row.id }}" tabindex="-1" aria-labelledby="updateModalLabel{{ row.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel{{ row.id }}">Update User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{{ url_for('update_user') }}">
+                        <div class="mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control", value=row["username"]) }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control", value=row["email"]) }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control") }}
+                        </div>
+                        <input type="hidden" name="user_id" value="{{ row.id }}">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal{{ row.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ row.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ row.id }}">Delete User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete {{ row["username"] }}?</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="POST" action="{{ url_for('delete') }}">
+                        <input type="hidden" name="user_id" value="{{ row.id }}">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% endblock %}
+

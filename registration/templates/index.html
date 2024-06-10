@@ -1,0 +1,15 @@
+{% extends 'main.html' %}
+{% block content %}
+    <h1 class="title">{% block title %} UserBoard {% endblock %}</h1>
+    <div class="content">
+        {% for user in users %}
+            <div class="student">
+                <p><b>#{{ user.id }}</b></p>
+                <b>
+                    <p class="name">USERNAME : <a href="{{ url_for('user', user_id=user.id)}}">{{ user.username }}</a></p>
+                </b>
+                <p>EMAIL : {{ user.email }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
